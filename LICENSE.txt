@@ -1,0 +1,9 @@
+Materiał szkoleniowy – AI w praktyce
+
+Copyright © 2026
+
+Materiał przeznaczony do wykorzystania szkoleniowego.
+Brak udzielonej licencji open source.
+
+W przypadku publikacji publicznej należy upewnić się, że sposób wykorzystania
+materiału jest zgodny z zasadami i wymaganiami organizacji będącej właścicielem materiału.

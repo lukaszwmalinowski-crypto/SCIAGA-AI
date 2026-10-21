@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>AI w praktyce – podręczny przewodnik</title>
+<style>
+:root{
+  --bg:#081316;
+  --panel:#0f1e22;
+  --panel2:#13272c;
+  --ink:#eef8f8;
+  --muted:#a8bec1;
+  --line:#234047;
+  --accent:#22c3b7;
+  --accent2:#71e2d8;
+  --soft:#16363a;
+  --warning:#ffcf66;
+  --danger:#ff8d8d;
+  --ok:#88e0aa;
+  --shadow:0 18px 55px rgba(0,0,0,.24);
+  --r:20px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 85% 0%,rgba(34,195,183,.15),transparent 34%),
+    radial-gradient(circle at 0% 30%,rgba(49,92,100,.19),transparent 28%),
+    var(--bg);
+  line-height:1.55;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:30px 22px 70px}
+.hero{
+  border:1px solid var(--line);
+  border-radius:30px;
+  padding:42px;
+  background:linear-gradient(135deg,rgba(16,43,48,.97),rgba(9,24,28,.98));
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+.hero:after{
+  content:"AI";
+  position:absolute;right:26px;bottom:-55px;
+  font-size:210px;font-weight:900;letter-spacing:-.08em;
+  color:rgba(113,226,216,.055);
+}
+.tag,.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:800;
+}
+.tag{background:rgba(34,195,183,.13);color:var(--accent2);border:1px solid rgba(34,195,183,.26)}
+.pill{background:#102a2f;color:#c5eded;border:1px solid #24515a}
+h1{font-size:clamp(2.3rem,5vw,4.6rem);line-height:1.02;letter-spacing:-.045em;margin:.5rem 0 1rem;max-width:850px}
+.hero p{font-size:1.12rem;color:#c7d9dc;max-width:820px;margin:0}
+.nav{
+  position:sticky;top:0;z-index:10;
+  margin:18px 0 26px;padding:9px;
+  border:1px solid rgba(35,64,71,.9);
+  border-radius:16px;background:rgba(8,19,22,.86);backdrop-filter:blur(14px);
+  display:flex;gap:7px;flex-wrap:wrap;
+}
+.nav a{color:#d9ebed;text-decoration:none;font-size:.9rem;font-weight:750;padding:8px 11px;border-radius:10px}
+.nav a:hover{background:#142a2f;color:#fff}
+.section{margin-top:38px;scroll-margin-top:90px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:15px}
+.section h2{font-size:1.75rem;letter-spacing:-.025em;margin:0}
+.lead{color:var(--muted);margin:.3rem 0 0;max-width:800px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:15px}
+.card{
+  border:1px solid var(--line);border-radius:var(--r);padding:21px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:0 8px 28px rgba(0,0,0,.11)
+}
+.span3{grid-column:span 3}.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+.card h3{margin:.15rem 0 .5rem;font-size:1.08rem}
+.card p{color:#c2d2d5;margin:.35rem 0}
+.small{font-size:.86rem;color:var(--muted)}
+.number{
+  width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+  background:var(--accent);color:#032222;font-weight:900;margin-bottom:11px
+}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.step{border:1px solid var(--line);border-radius:16px;padding:16px;background:#0d1c20}
+.step strong{display:block;margin-bottom:4px}
+.prompt{
+  margin-top:12px;background:#071013;border:1px solid #1d363c;
+  border-radius:15px;padding:17px 58px 17px 17px;white-space:pre-wrap;
+  position:relative;font-size:.93rem;color:#eef8f8
+}
+.copy{
+  position:absolute;right:10px;top:10px;border:0;border-radius:9px;
+  background:#e9ffff;color:#073238;padding:7px 9px;font-weight:850;cursor:pointer
+}
+.copy.copied{background:var(--ok)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filter{
+  border:1px solid var(--line);background:#0e1f23;color:#d9edef;
+  border-radius:999px;padding:7px 11px;font-weight:800;cursor:pointer
+}
+.filter.active{background:var(--accent);color:#042126;border-color:var(--accent)}
+.tool{display:grid;grid-template-columns:170px 1fr;gap:17px;padding:16px 0;border-top:1px solid var(--line)}
+.tool:first-child{border-top:0;padding-top:0}
+.tool-name{font-weight:900}
+.tool-desc{color:#c0d1d3}
+.tool-badges{margin-top:7px}
+.warn{border-left:4px solid var(--warning)}
+.danger{border-left:4px solid var(--danger)}
+.ok{border-left:4px solid var(--ok)}
+ul{padding-left:20px}
+li{margin:5px 0}
+.builder{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font-size:.82rem;font-weight:850;color:#b7d2d5}
+input,textarea,select{
+  width:100%;margin-top:6px;background:#081619;color:#eef8f8;border:1px solid #29474e;
+  border-radius:11px;padding:11px 12px;font:inherit;outline:none
+}
+textarea{min-height:95px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{
+  border:0;border-radius:11px;background:var(--accent);color:#042126;
+  padding:10px 14px;font-weight:900;cursor:pointer
+}
+.btn.secondary{background:#17353b;color:#d8eeee;border:1px solid #2a525b}
+.output{margin-top:13px}
+.checklist{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.check{background:#0d1c20;border:1px solid var(--line);border-radius:15px;padding:14px}
+.check b{display:block;color:var(--accent2);margin-bottom:4px}
+.footer{margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:#789398;font-size:.84rem}
+a.ext{color:var(--accent2);text-decoration:none}
+a.ext:hover{text-decoration:underline}
+@media(max-width:900px){
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .span3,.span4,.span6,.span8{grid-column:span 12}
+  .builder{grid-template-columns:1fr}
+  .checklist{grid-template-columns:1fr 1fr}
+  .tool{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .wrap{padding:18px 14px 45px}.hero{padding:27px 22px}.hero:after{display:none}
+  .steps,.checklist{grid-template-columns:1fr}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .wrap{max-width:none;padding:0}.hero,.card,.step,.check{background:#fff;color:#111;box-shadow:none;border-color:#bbb}
+  .hero p,.lead,.card p,.small,.tool-desc,.footer{color:#444}
+  .nav,.copy,.filters,.actions,.builder{display:none}
+  .prompt{color:#111;background:#f5f5f5;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<span class="tag">MATERIAŁ SZKOLENIOWY • AI W PRAKTYCE</span>
+<h1>Praktyczne korzystanie ze sztucznej inteligencji</h1>
+<p>Podręczna karta uczestnika: jak pisać dobre prompty, do czego używać AI, jakie narzędzia dobierać i jak pracować bezpiecznie. Materiał działa lokalnie w przeglądarce.</p>
+</section>
+<nav class="nav">
+<a href="#start">Od czego zacząć</a>
+<a href="#prompt">Dobry prompt</a>
+<a href="#generator">Generator promptu</a>
+<a href="#biblioteka">Gotowe prompty</a>
+<a href="#narzedzia">Narzędzia</a>
+<a href="#bezpieczenstwo">Bezpieczeństwo</a>
+<a href="#weryfikacja">Weryfikacja</a>
+<a href="#prompty-poziomy">Prompt: słaby → dobry</a><a href="#urzad">Prompty urzędowe</a><a href="#pliki">PDF / Word / Excel</a><a href="#top5">5 promptów</a></nav>
+<section class="section" id="start">
+<div class="section-head">
+<div>
+<h2>1. AI nie „wie” – AI generuje odpowiedź</h2>
+<p class="lead">Najlepsze rezultaty pojawiają się wtedy, gdy człowiek jasno określa zadanie, przekazuje potrzebny kontekst i sprawdza rezultat.</p>
+</div>
+</div>
+<div class="grid">
+<article class="card span4"><div class="number">1</div><h3>Powiedz, czego potrzebujesz</h3><p>Zamiast „napisz maila” określ odbiorcę, cel, ton i długość.</p></article>
+<article class="card span4"><div class="number">2</div><h3>Daj kontekst</h3><p>AI nie zna Twojej sytuacji, dokumentów ani intencji, jeśli ich nie podasz.</p></article>
+<article class="card span4"><div class="number">3</div><h3>Sprawdź wynik</h3><p>Płynna i profesjonalnie brzmiąca odpowiedź nadal może zawierać błąd lub zmyślony fakt.</p></article>
+</div>
+</section>
+<section class="section" id="prompt">
+<div class="section-head"><div><h2>2. Prosty schemat dobrego promptu</h2><p class="lead">Nie trzeba używać „magicznych słów”. Wystarczy dobrze zdefiniować zadanie.</p></div></div>
+<div class="steps">
+<div class="step"><strong>Rola</strong><span class="small">Kim ma być AI?</span></div>
+<div class="step"><strong>Cel</strong><span class="small">Co ma wykonać?</span></div>
+<div class="step"><strong>Kontekst</strong><span class="small">Dla kogo i po co?</span></div>
+<div class="step"><strong>Dane</strong><span class="small">Na czym ma pracować?</span></div>
+<div class="step"><strong>Format</strong><span class="small">Jak ma wyglądać wynik?</span></div>
+<div class="step"><strong>Ograniczenia</strong><span class="small">Czego unikać?</span></div>
+</div>
+<div class="card span12" style="margin-top:15px">
+<span class="tag">PRZYKŁAD</span>
+<div class="prompt">Jesteś specjalistą ds. komunikacji w instytucji publicznej.
+
+Przygotuj krótką wiadomość e-mail do uczestników szkolenia przypominającą o jutrzejszych zajęciach.
+
+Kontekst: odbiorcami są pracownicy urzędów pracy. Wiadomość ma być życzliwa i konkretna.
+
+Uwzględnij: godzinę 9:00, miejsce szkolenia, prośbę o punktualność.
+
+Format: temat wiadomości + maksymalnie 3 krótkie akapity.
+
+Nie używaj urzędniczego, sztywnego języka.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</div>
+</section>
+<section class="section" id="generator">
+<div class="section-head"><div><h2>3. Generator promptu</h2><p class="lead">Wypełnij pola. Wszystko działa lokalnie – dane nie są nigdzie wysyłane przez tę stronę.</p></div></div>
+<div class="card">
+<div class="builder">
+<div><label>Rola AI<input id="role" placeholder="np. specjalista ds. komunikacji"/></label></div>
+<div><label>Cel<input id="goal" placeholder="np. przygotuj podsumowanie dokumentu"/></label></div>
+<div><label>Kontekst<textarea id="context" placeholder="Dla kogo? W jakiej sytuacji? Jaki jest cel końcowy?"></textarea></label></div>
+<div><label>Dane / materiał<textarea id="data" placeholder="Wklej treść albo opisz, na czym AI ma pracować"></textarea></label></div>
+<div><label>Format<input id="format" placeholder="np. tabela: problem / rekomendacja / uzasadnienie"/></label></div>
+<div><label>Ograniczenia<input id="limits" placeholder="np. maks. 250 słów, prosty język, bez zgadywania"/></label></div>
+</div>
+<div class="actions"><button class="btn" onclick="buildPrompt()">Utwórz prompt</button><button class="btn secondary" onclick="clearBuilder()">Wyczyść</button></div>
+<div class="prompt output" id="built">Tu pojawi się gotowy prompt.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</div>
+</section>
+<section class="section" id="prompty-poziomy">
+<div class="section-head">
+<div>
+<h2>4. Jak rośnie jakość promptu?</h2>
+<p class="lead">AI zwykle nie potrzebuje „magicznych formuł”. Potrzebuje po prostu lepiej opisanego zadania.</p>
+</div>
+</div>
+<div class="grid">
+<article class="card span4 danger">
+<span class="pill">SŁABY PROMPT</span>
+<h3>„Napisz maila.”</h3>
+<p>AI musi zgadywać: do kogo, po co, w jakim tonie i co ma się znaleźć w wiadomości.</p>
+</article>
+<article class="card span4 warn">
+<span class="pill">LEPSZY PROMPT</span>
+<h3>„Napisz maila przypominającego o szkoleniu.”</h3>
+<p>Cel jest już znany, ale nadal brakuje odbiorcy, tonu, danych i formatu.</p>
+</article>
+<article class="card span4 ok">
+<span class="pill">BARDZO DOBRY PROMPT</span>
+<h3>„Przygotuj krótkie przypomnienie dla uczestników szkolenia...”</h3>
+<div class="prompt">Przygotuj krótką wiadomość e-mail do uczestników jutrzejszego szkolenia.
+
+Odbiorcy: pracownicy urzędów pracy.
+Ton: życzliwy, profesjonalny, bez sztywnego języka.
+Uwzględnij: godzinę 9:00, miejsce szkolenia i prośbę o punktualność.
+Format: temat wiadomości + maksymalnie 3 krótkie akapity.
+Nie dopisuj informacji, których nie podano.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+</div>
+<div class="card" style="margin-top:15px">
+<h3>Co zmieniło jakość odpowiedzi?</h3>
+<div class="checklist">
+<div class="check"><b>Cel</b><span class="small">AI wie, co ma przygotować.</span></div>
+<div class="check"><b>Odbiorca</b><span class="small">Może dopasować język.</span></div>
+<div class="check"><b>Kontekst</b><span class="small">Rozumie sytuację.</span></div>
+<div class="check"><b>Format</b><span class="small">Wynik jest od razu użyteczny.</span></div>
+<div class="check"><b>Granice</b><span class="small">Mniej zgadywania i dopisywania.</span></div>
+</div>
+</div>
+</section><section class="section" id="urzad">
+<div class="section-head">
+<div>
+<h2>5. Prompty do pracy urzędowej</h2>
+<p class="lead">Gotowe wzory do najczęstszych zadań administracyjnych i organizacyjnych.</p>
+</div>
+</div>
+<div class="grid">
+<article class="card span6">
+<span class="pill">Pismo / e-mail</span>
+<h3>Uprość język urzędowy</h3>
+<div class="prompt">Przeredaguj poniższy tekst na prostszy i bardziej zrozumiały język.
+
+Zachowaj:
+– wszystkie istotne informacje,
+– oficjalny, ale życzliwy ton,
+– poprawność merytoryczną.
+
+Usuń:
+– zbędne formalizmy,
+– wielokrotnie złożone zdania,
+– powtórzenia.
+
+Nie zmieniaj sensu dokumentu.
+
+TEKST:
+[Wklej treść]<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+<article class="card span6">
+<span class="pill">Porównanie</span>
+<h3>Porównaj dwie wersje dokumentu</h3>
+<div class="prompt">Porównaj dwie wersje dokumentu.
+
+Przygotuj tabelę:
+1. fragment / obszar,
+2. wersja A,
+3. wersja B,
+4. znaczenie zmiany,
+5. czy zmiana wymaga działania.
+
+Na końcu podaj 5 najważniejszych różnic.
+Nie pomijaj zmian w kwotach, datach, obowiązkach i warunkach.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+<article class="card span6">
+<span class="pill">Notatka</span>
+<h3>Notatka służbowa z luźnych informacji</h3>
+<div class="prompt">Na podstawie poniższych informacji przygotuj krótką notatkę służbową.
+
+Układ:
+– czego dotyczy sprawa,
+– najważniejsze fakty,
+– podjęte działania,
+– dalsze kroki.
+
+Styl: formalny, prosty, bez zbędnych ozdobników.
+Nie dopisuj faktów, których nie ma w materiale.
+
+MATERIAŁ:
+[Wklej notatki]<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+<article class="card span6">
+<span class="pill">Analiza</span>
+<h3>Znajdź nieścisłości</h3>
+<div class="prompt">Przeanalizuj poniższy dokument jak kontroler jakości.
+
+Wskaż:
+– sprzeczności,
+– niespójne kwoty,
+– brakujące dane,
+– niejasne sformułowania,
+– różnice między tabelą a opisem,
+– elementy wymagające potwierdzenia.
+
+Nie poprawiaj dokumentu od razu. Najpierw przygotuj listę problemów wraz z uzasadnieniem.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+<article class="card span6">
+<span class="pill">Spotkanie</span>
+<h3>Agenda spotkania</h3>
+<div class="prompt">Przygotuj agendę 60-minutowego spotkania na temat [TEMAT].
+
+Cel spotkania: [CEL].
+Uczestnicy: [GRUPA].
+
+Agenda ma zawierać:
+– krótkie otwarcie,
+– 3–4 główne punkty,
+– czas na decyzje,
+– podsumowanie i kolejne kroki.
+
+Nie rozpisuj jej zbyt szczegółowo.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+<article class="card span6">
+<span class="pill">Decyzja</span>
+<h3>Macierz opcji</h3>
+<div class="prompt">Porównaj poniższe opcje i przygotuj macierz decyzyjną.
+
+Kryteria:
+– koszt,
+– czas,
+– ryzyko,
+– zgodność z wymaganiami,
+– łatwość wdrożenia.
+
+Dla każdego kryterium użyj skali 1–5 i krótko uzasadnij ocenę.
+Na końcu wskaż, która opcja wypada najlepiej i dlaczego.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+</div>
+</section><section class="section" id="pliki">
+<div class="section-head">
+<div>
+<h2>6. Praca z plikami: PDF, Word, Excel</h2>
+<p class="lead">Załączanie pliku to dopiero początek. Największą różnicę robi precyzyjna instrukcja, co AI ma z nim zrobić.</p>
+</div>
+</div>
+<div class="grid">
+<article class="card span4">
+<span class="pill">PDF</span>
+<h3>Dokumenty i regulaminy</h3>
+<p>Najlepiej działa, gdy prosisz o konkret: streszczenie, terminy, obowiązki, ryzyka, porównanie wersji lub cytaty z dokumentu.</p>
+<div class="prompt">Przeanalizuj załączony PDF.
+
+Przygotuj:
+1. streszczenie w 8 punktach,
+2. wszystkie terminy i daty,
+3. wszystkie kwoty,
+4. obowiązki wynikające z dokumentu,
+5. kwestie wymagające uwagi.
+
+Przy każdym ważnym wniosku wskaż, gdzie znajduje się on w dokumencie.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+<article class="card span4">
+<span class="pill">WORD</span>
+<h3>Pisma i wersje robocze</h3>
+<p>Możesz poprosić o korektę języka, skrócenie, ujednolicenie stylu, kontrolę logiczną albo zmianę struktury.</p>
+<div class="prompt">Przejrzyj załączony dokument Word.
+
+Nie zmieniaj znaczenia treści.
+Wskaż:
+– zdania zbyt długie,
+– powtórzenia,
+– niejasne sformułowania,
+– niespójności stylistyczne.
+
+Następnie przygotuj poprawioną wersję w prostszym, profesjonalnym języku.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+<article class="card span4">
+<span class="pill">EXCEL</span>
+<h3>Tabele i dane</h3>
+<p>Przy danych proś najpierw o kontrolę struktury i jakości, dopiero później o wnioski.</p>
+<div class="prompt">Przeanalizuj załączony arkusz Excel.
+
+Najpierw:
+– opisz kolumny,
+– wskaż puste pola,
+– wykryj duplikaty,
+– sprawdź niespójne wartości,
+– zaznacz podejrzane rekordy.
+
+Dopiero potem:
+– policz kluczowe wskaźniki,
+– wskaż 5 najważniejszych wniosków,
+– pokaż, na jakich danych je opierasz.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</article>
+</div>
+<div class="card" style="margin-top:15px">
+<h3>Dobry nawyk przy pracy z plikiem</h3>
+<div class="checklist">
+<div class="check"><b>1. Struktura</b><span class="small">Co właściwie znajduje się w pliku?</span></div>
+<div class="check"><b>2. Jakość</b><span class="small">Czy są braki albo błędy?</span></div>
+<div class="check"><b>3. Analiza</b><span class="small">Co z danych wynika?</span></div>
+<div class="check"><b>4. Źródło</b><span class="small">Na czym opiera się wniosek?</span></div>
+<div class="check"><b>5. Weryfikacja</b><span class="small">Czy wynik zgadza się z plikiem?</span></div>
+</div>
+</div>
+</section><section class="section" id="biblioteka">
+<div class="section-head"><div><h2>7. Gotowe prompty do codziennej pracy</h2><p class="lead">Traktuj je jako punkt wyjścia. Najlepszy prompt dopasowujesz do własnego zadania.</p></div></div>
+<div class="grid">
+<article class="card span6"><span class="pill">E-mail</span><h3>Lepsza wersja wiadomości</h3><div class="prompt">Przeredaguj poniższą wiadomość tak, aby była jasna, życzliwa i profesjonalna. Zachowaj sens i wszystkie ważne informacje. Usuń zbędny urzędowy język. Nie dopisuj faktów, których nie ma w tekście.
+
+TEKST:
+[Wklej wiadomość]<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">Dokument</span><h3>Streszczenie z decyzjami</h3><div class="prompt">Przeanalizuj poniższy dokument. Przygotuj:
+1. streszczenie w 5 punktach,
+2. najważniejsze terminy i kwoty,
+3. decyzje lub działania, które trzeba podjąć,
+4. kwestie niejasne lub wymagające weryfikacji.
+Nie zgaduj. Jeśli czegoś nie ma w dokumencie, napisz „brak informacji”.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">Excel / dane</span><h3>Analiza tabeli</h3><div class="prompt">Przeanalizuj załączony arkusz. Najpierw opisz strukturę danych i sprawdź, czy są braki lub niespójności. Następnie wskaż 5 najważniejszych wniosków. Pokaż obliczenia, na których opierasz wnioski. Nie interpretuj kolumn, których znaczenie jest niejasne bez zaznaczenia tego.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">Spotkanie</span><h3>Notatka po spotkaniu</h3><div class="prompt">Na podstawie poniższych notatek przygotuj uporządkowaną notatkę ze spotkania. Podziel ją na: ustalenia, zadania, osoby odpowiedzialne, terminy i sprawy otwarte. Nie dopisuj informacji, których nie ma w materiale.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">Pomysły</span><h3>Burza mózgów bez banałów</h3><div class="prompt">Zaproponuj 10 pomysłów na [TEMAT]. Odbiorcy: [GRUPA]. Najpierw podaj 5 bezpiecznych, realistycznych propozycji, a potem 5 mniej oczywistych. Przy każdej napisz: korzyść, trudność wdrożenia i pierwszy krok.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">Kontrola jakości</span><h3>Krytyk własnej odpowiedzi</h3><div class="prompt">Przeczytaj swoją poprzednią odpowiedź jak wymagający recenzent. Wskaż:
+– które stwierdzenia są faktami,
+– które są wnioskami lub interpretacją,
+– co może być niepewne albo wymagać źródła,
+– czego brakuje.
+Następnie przygotuj poprawioną wersję.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">Prosty język</span><h3>Wyjaśnij bez żargonu</h3><div class="prompt">Wyjaśnij poniższy temat osobie, która nie zna specjalistycznego słownictwa. Użyj krótkich zdań, konkretnego przykładu i maksymalnie 5 punktów. Nie upraszczaj faktów do poziomu, który zmienia ich znaczenie.
+
+TEMAT:
+[Wklej temat]<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">Weryfikacja</span><h3>Nie zgaduj</h3><div class="prompt">Odpowiedz tylko na podstawie dostarczonych materiałów. Przy każdym ważnym wniosku wskaż, z którego fragmentu materiału wynika. Jeśli nie możesz potwierdzić odpowiedzi, napisz wprost, czego brakuje do jej ustalenia.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+</div>
+</section>
+<section class="section" id="narzedzia">
+<div class="section-head"><div><h2>8. Jakie narzędzie do czego?</h2><p class="lead">Nie istnieje jedno „najlepsze AI”. Narzędzie dobieramy do zadania, rodzaju danych i zasad obowiązujących w organizacji.</p></div></div>
+<div class="filters">
+<button class="filter active" onclick="filterTools('all',this)">Wszystkie</button>
+<button class="filter" onclick="filterTools('tekst',this)">Tekst i analiza</button>
+<button class="filter" onclick="filterTools('biuro',this)">Praca biurowa</button>
+<button class="filter" onclick="filterTools('research',this)">Research</button>
+<button class="filter" onclick="filterTools('grafika',this)">Grafika</button>
+<button class="filter" onclick="filterTools('prezentacje',this)">Prezentacje</button>
+</div>
+<div class="card">
+<div class="tool" data-cat="tekst biuro research">
+<div><div class="tool-name">ChatGPT</div><div class="tool-type">asystent ogólny</div></div>
+<div class="tool-desc">Teksty, analiza plików i danych, podsumowania, praca z dokumentami, generowanie i edycja obrazów, pomysły i pomoc w rozwiązywaniu zadań.<div class="tool-badges"><span class="pill">teksty</span><span class="pill">pliki</span><span class="pill">dane</span><span class="pill">obrazy</span></div></div>
+</div>
+<div class="tool" data-cat="tekst biuro">
+<div><div class="tool-name">Microsoft Copilot</div><div class="tool-type">AI w ekosystemie Microsoft</div></div>
+<div class="tool-desc">Przydatny szczególnie tam, gdzie praca odbywa się w Wordzie, Excelu, PowerPoincie, Outlooku i Teams. Zakres dostępu zależy od licencji i konfiguracji organizacji.<div class="tool-badges"><span class="pill">Microsoft 365</span><span class="pill">dokumenty</span><span class="pill">biuro</span></div></div>
+</div>
+<div class="tool" data-cat="tekst research biuro">
+<div><div class="tool-name">Gemini</div><div class="tool-type">AI Google</div></div>
+<div class="tool-desc">Asystent do pracy z tekstem, dokumentami i zadaniami w ekosystemie Google. Może być wygodny przy pracy z usługami Google Workspace.<div class="tool-badges"><span class="pill">Google</span><span class="pill">tekst</span><span class="pill">pliki</span></div></div>
+</div>
+<div class="tool" data-cat="research tekst">
+<div><div class="tool-name">Gemini Notebook</div><div class="tool-type">dawniej NotebookLM</div></div>
+<div class="tool-desc">Narzędzie do pracy na własnych źródłach i materiałach: porządkowania dokumentów, zadawania pytań do materiałów i przygotowywania opracowań opartych na dostarczonych źródłach.<div class="tool-badges"><span class="pill">źródła</span><span class="pill">research</span><span class="pill">nauka</span></div></div>
+</div>
+<div class="tool" data-cat="grafika prezentacje">
+<div><div class="tool-name">Canva / Magic Studio</div><div class="tool-type">projektowanie z AI</div></div>
+<div class="tool-desc">Grafiki, prezentacje, materiały do social mediów, szybkie projekty wizualne i funkcje generatywne wspierające tworzenie treści i układów.<div class="tool-badges"><span class="pill">grafika</span><span class="pill">prezentacje</span><span class="pill">materiały</span></div></div>
+</div>
+<div class="tool" data-cat="prezentacje grafika">
+<div><div class="tool-name">Gamma</div><div class="tool-type">prezentacje i dokumenty wizualne</div></div>
+<div class="tool-desc">Szybkie przygotowanie pierwszej wersji prezentacji, struktury slajdów i materiałów wizualnych. Wymaga późniejszego sprawdzenia treści i dopracowania stylu.</div>
+</div>
+<div class="tool" data-cat="tekst research">
+<div><div class="tool-name">Perplexity</div><div class="tool-type">wyszukiwanie wspierane AI</div></div>
+<div class="tool-desc">Przydatne do szybkiego rozeznania tematu i wyszukiwania informacji wraz z odwołaniami do źródeł. Źródła nadal trzeba otworzyć i ocenić samodzielnie.</div>
+</div>
+</div>
+</section>
+<section class="section" id="bezpieczenstwo">
+<div class="section-head"><div><h2>9. Bezpieczna praca z AI</h2><p class="lead">Najważniejsza zasada: zanim wkleisz dane do narzędzia, zastanów się, czy masz prawo je tam umieścić.</p></div></div>
+<div class="grid">
+<article class="card span4 danger"><h3>Nie wklejaj bez potrzeby</h3><ul><li>danych osobowych i wrażliwych,</li><li>haseł i danych logowania,</li><li>poufnych dokumentów,</li><li>informacji objętych tajemnicą,</li><li>danych klientów lub interesantów.</li></ul></article>
+<article class="card span4 warn"><h3>Anonimizuj</h3><p>Zastąp imiona, numery, nazwy i inne identyfikatory neutralnymi oznaczeniami, np. „Osoba A”, „Firma X”, „Jednostka 1”.</p></article>
+<article class="card span4 ok"><h3>Człowiek odpowiada za wynik</h3><p>AI może przygotować szkic, ale to użytkownik powinien zweryfikować fakty, język, zgodność z procedurami i ostateczną treść.</p></article>
+</div>
+</section>
+<section class="section" id="top5">
+<div class="section-head">
+<div>
+<h2>10. Pięć promptów, które warto zapamiętać</h2>
+<p class="lead">Jeśli uczestnik ma zapamiętać tylko kilka rzeczy, te pięć daje największy zwrot z praktyki.</p>
+</div>
+</div>
+<div class="grid">
+<article class="card span6"><span class="pill">1</span><h3>Nie zgaduj</h3><div class="prompt">Nie zgaduj. Jeśli nie masz wystarczających danych, napisz wprost, czego brakuje. Oddziel fakty od przypuszczeń.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">2</span><h3>Najpierw analiza</h3><div class="prompt">Najpierw przeanalizuj materiał i wskaż problemy. Nie przygotowuj rozwiązania, dopóki nie pokażesz, co dokładnie wymaga poprawy.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">3</span><h3>Pokaż źródło</h3><div class="prompt">Przy każdym ważnym wniosku wskaż, na jakiej informacji lub fragmencie materiału go opierasz.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span6"><span class="pill">4</span><h3>Dopasuj do odbiorcy</h3><div class="prompt">Przeredaguj odpowiedź dla osoby, która nie zna specjalistycznego języka. Używaj krótkich zdań i konkretnego przykładu.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+<article class="card span12"><span class="pill">5</span><h3>Skrytykuj własną odpowiedź</h3><div class="prompt">Przeczytaj swoją odpowiedź ponownie jako wymagający recenzent. Wskaż błędy, niejasności, niepotwierdzone twierdzenia i brakujące informacje. Następnie przygotuj poprawioną wersję.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div></article>
+</div>
+</section><section class="section" id="weryfikacja">
+<div class="section-head"><div><h2>11. Zasada: STOP przed użyciem wyniku</h2><p class="lead">Profesjonalny wygląd odpowiedzi nie jest dowodem jej prawdziwości.</p></div></div>
+<div class="checklist">
+<div class="check"><b>S — Source</b><span class="small">Czy znam źródło informacji?</span></div>
+<div class="check"><b>T — Truth</b><span class="small">Czy fakt da się potwierdzić?</span></div>
+<div class="check"><b>O — Objective</b><span class="small">Czy odpowiedź realizuje mój cel?</span></div>
+<div class="check"><b>P — Privacy</b><span class="small">Czy dane są bezpieczne?</span></div>
+<div class="check"><b>✓ Final</b><span class="small">Czy podpisałbym się pod tą treścią?</span></div>
+</div>
+<div class="card" style="margin-top:15px">
+<span class="tag">DOBRA PRAKTYKA</span>
+<h3>Poproś AI, żeby pokazało niepewność</h3>
+<div class="prompt">Nie zgaduj. Oddziel informacje pewne od niepewnych. Wskaż, które twierdzenia wymagają sprawdzenia w źródłach. Jeżeli nie masz wystarczających danych, powiedz to wprost.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button></div>
+</div>
+</section>
+<section class="section">
+<div class="card">
+<h2 style="margin-top:0">Najważniejsze na koniec</h2>
+<p><strong>AI ma przyspieszać pracę, a nie zastępować myślenie.</strong> Dobry rezultat powstaje w pętli: <span class="pill">zadaj</span> → <span class="pill">oceń</span> → <span class="pill">doprecyzuj</span> → <span class="pill">sprawdź</span> → <span class="pill">wykorzystaj</span>.</p>
+</div>
+</section>
+<footer class="footer">
+    Materiał szkoleniowy • „Nowe kompetencje cyfrowe w praktyce: Praktyczne wykorzystanie sztucznej inteligencji” • wersja offline
+  </footer>
+</main>
+<script>
+function copyPrompt(btn){
+  const box=btn.parentElement;
+  const clone=box.cloneNode(true);
+  const b=clone.querySelector('button'); if(b)b.remove();
+  navigator.clipboard.writeText(clone.innerText.trim()).then(()=>{
+    const old=btn.innerText; btn.innerText='Skopiowano'; btn.classList.add('copied');
+    setTimeout(()=>{btn.innerText=old;btn.classList.remove('copied')},1300);
+  });
+}
+function buildPrompt(){
+  const val=id=>document.getElementById(id).value.trim();
+  const parts=[];
+  if(val('role')) parts.push('ROLA:\\nJesteś '+val('role')+'.');
+  if(val('goal')) parts.push('CEL:\\n'+val('goal'));
+  if(val('context')) parts.push('KONTEKST:\\n'+val('context'));
+  if(val('data')) parts.push('DANE / MATERIAŁ:\\n'+val('data'));
+  if(val('format')) parts.push('FORMAT ODPOWIEDZI:\\n'+val('format'));
+  if(val('limits')) parts.push('OGRANICZENIA:\\n'+val('limits'));
+  const built=document.getElementById('built');
+  const btn=built.querySelector('button').outerHTML;
+  built.innerHTML=(parts.length?parts.join('\\n\\n'):'Uzupełnij przynajmniej jedno pole.')+btn;
+}
+function clearBuilder(){
+  ['role','goal','context','data','format','limits'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('built').innerHTML='Tu pojawi się gotowy prompt.<button class="copy" onclick="copyPrompt(this)">Kopiuj</button>';
+}
+function filterTools(cat,btn){
+  document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
+  document.querySelectorAll('.tool').forEach(x=>{
+    x.style.display=(cat==='all'||x.dataset.cat.includes(cat))?'grid':'none';
+  });
+}
+</script>
+</body>
+</html>
